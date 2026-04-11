@@ -77,43 +77,75 @@ with >35 items in a week, you're probably being too generous; tighten.
 
 ### INCLUDE
 
-Use these as section names. Skip any section with zero items.
+Use these as section names. Skip any section with zero items. Aim for a
+reasonably even spread — if one section balloons past ~10 items while others
+sit at 1\u20132, you're probably miscategorizing. See **Balance discipline** below.
 
 - **AI model & product releases** \u2014 Major model launches (GPT-N, Claude N,
-  Gemini N, Llama N, Mistral, DeepSeek, Qwen, etc.), proprietary or open
+  Gemini N, Llama N, Mistral, DeepSeek, Qwen, Z.ai, etc.), proprietary or open
   source. New product *categories* from major labs (Operator-style agents,
-  Sora-style video, Vision Pro, etc.).
+  Sora-style video, agent harnesses, etc.). Also paid tier launches and
+  pricing shifts from major labs when they reframe access (e.g., a new
+  ChatGPT Pro tier with materially different limits).
 - **Capability thresholds** \u2014 First time a model/system crosses a meaningful
   threshold (passes a major exam, wins a competition, ships a real-world
-  autonomous service in a new city, etc.).
-- **Adoption & usage shifts** \u2014 Usage milestones with structural meaning
-  (X hits N00M weekly users, ARR milestones for category leaders, traffic
-  collapses for incumbents, behavior change at scale).
-- **Platform & policy** \u2014 Platform rule changes that move developer or user
-  behavior (Apple opens iOS to alternative stores, Anthropic bans wrappers,
-  EU AI Act enforcement, app store policy shifts).
+  autonomous service in a new city, first autonomous intelligence report
+  from a government agency, etc.).
+- **Revenue & scale milestones** \u2014 ARR, run-rate, revenue, or valuation
+  milestones for category leaders; unit economics disclosures; capex/opex
+  signals; mega-deals where the dollar figure itself *is* the story (e.g.,
+  Anthropic's $30B run rate, AWS hitting $15B AI ARR, a $350B tender).
+  This is the bucket for financial-scale signals; keep it separate from
+  behavioral/usage signals below.
+- **User behavior & adoption** \u2014 How people are actually using (or not
+  using) these products: usage milestones by headcount (X hits N00M WAU),
+  survey data on attitudes and habits, behavior shifts at scale, accuracy
+  analyses that imply real-world impact, new distribution surfaces (native
+  apps inside chatbots, etc.). Not financial milestones \u2014 those go above.
+- **Platform & policy** \u2014 Platform rule changes, app store actions, and
+  company policy proposals that move developer or user behavior (Apple
+  opens/closes iOS doors, Anthropic bans wrappers, OpenAI policy proposals
+  for a post-superintelligence world, EU AI Act enforcement, app store
+  takedowns at state request). Mixes company policy and government policy
+  when the effect is platform-level.
 - **Infrastructure & compute** \u2014 Shifts symptomatic of demand or scarcity
   (data center buildouts/delays, compute deals, power constraints, custom
-  silicon, Nvidia generations, new chip entrants).
-- **M&A and strategic deals** \u2014 Acquisitions or partnerships that reshape a
-  category, not just expand a portfolio. Big-number deals where the *strategic
-  signal* matters.
-- **Funding** \u2014 Only when paradigm-signaling: new valuation tier for a
-  category leader, mega-rounds that imply scale, strategic investor signals.
-  Skip ordinary Series A/B/C.
+  silicon, Nvidia generations, new chip entrants, advanced packaging,
+  lab-designed accelerators). Anthropic/Meta/OpenAI compute deals land here,
+  not under Deals & funding.
+- **Deals & funding** \u2014 Acquisitions, strategic partnerships, and funding
+  rounds, consolidated into one bucket. Include only when the deal itself
+  is the story: category-reshaping M&A, valuation-tier shifts for category
+  leaders, mega-rounds that imply scale, strategic investor signals. Skip
+  ordinary Series A/B/C. When an "infra deal" (e.g., Meta \u2192 CoreWeave) is
+  really about compute capacity, route it to Infrastructure & compute
+  instead.
 - **Regulation & legal** \u2014 Significant developments even if unresolved
   (major lawsuits filed/settled, court rulings, antitrust action, new laws
-  taking effect). Skip incremental motions in long-running cases.
+  taking effect, state AG probes, first convictions under new laws). Skip
+  incremental motions in long-running cases.
 - **Geopolitics & trade** \u2014 Export controls, sanctions, chip wars, sovereign
-  AI moves. Skip generic diplomatic friction.
+  AI moves, cross-border chip smuggling cases. Skip generic diplomatic
+  friction.
 - **Hardware & devices** \u2014 Generational jumps, new entrants, devices that
-  define or redefine a category. Skip spec bumps.
-- **Research & ideas** \u2014 Papers, essays, or talks with downstream
-  implications (notable Anthropic/OpenAI/DeepMind papers, influential
-  Karpathy/Sutton/etc. essays). Skip blog posts that are just announcements.
-- **Drama & narratives** \u2014 Beefs, public letters, exec departures, leaks
-  that *reshape an industry narrative*. Musk-vs-Altman level, not random
-  sniping. Use sparingly.
+  define or redefine a category, AR/VR/smartglasses partnerships, foldables
+  and new form factors. Skip spec bumps.
+- **Research & ideas** \u2014 Technical papers and durable essays with
+  downstream implications (notable Anthropic/OpenAI/DeepMind papers,
+  influential Karpathy/Sutton/etc. essays, urgent technical calls like
+  post-quantum crypto rollouts). Skip blog posts that are just
+  announcements. *This bucket is for written artifacts with durable claims,
+  not interviews.*
+- **Voices & interviews** \u2014 Q&As, profiles, podcasts, and public letters
+  from people who matter (CEO Q&As, researcher interviews, notable profiles).
+  Use when the interview itself is the surface for a newsworthy idea or
+  candid statement. Sibling to Research & ideas: one is durable text, the
+  other is spoken/conversational.
+- **Industry narratives** \u2014 Beefs, exec departures, org restructures,
+  leaked memos, and stories that *reshape how the industry is talked
+  about*. Musk-vs-Altman level, or "Meta pulls top engineers into a new
+  Applied AI division" level. Use sparingly; if a story is really a deal
+  or a policy change, put it there.
 - **Beyond AI** \u2014 Catch-all for structurally significant non-AI tech
   (crypto/stablecoin milestones, biotech, space, EVs, social, search). Use
   this section if there are 1\u20133 items that don't fit elsewhere; otherwise
@@ -133,8 +165,81 @@ Use these as section names. Skip any section with zero items.
 - Procedural court motions in long-running cases.
 - Single-source rumor or speculation without corroboration.
 
+### Calibration notes (lessons from past curation)
+
+The user has overridden past exclusions enough times to establish these
+inclusion bars. When in doubt, lean toward including items that match
+these patterns:
+
+- **Accuracy/reliability analyses at scale** are structural. "Gemini
+  Overviews 90% accurate across 5T+ searches/year" = tens of millions of
+  errors per hour, which is a behavioral signal, not a UX story.
+- **Generational attitude surveys toward AI** are structural. Shifts in
+  how under-30s feel about AI tools (hopefulness, daily use rates, trust)
+  are paradigm signals worth including.
+- **New distribution surfaces** are structural. First-of-kind native apps
+  inside chatbots (Tubi in ChatGPT), AI features landing in system-level
+  surfaces (Google News showing Polymarket), and platform integrations
+  that imply a new pattern all count.
+- **App store removals at government request** are structural, especially
+  cross-border (CAC, EU, India). The act itself reshapes developer calculus.
+- **State AG probes of frontier labs** count. A Florida AG probe of OpenAI
+  is not routine political noise \u2014 probes of named frontier labs are
+  structural because they signal where state enforcement is aiming.
+- **Federal-vs-state AI policy friction** counts. When the White House
+  pushes back on state AI bills (or vice versa), that's a live policy
+  front, not day-to-day political noise.
+- **Lawsuit amendments with novel relief asks** count. "Musk amends suit
+  to ask Altman be removed from the nonprofit board" is not a procedural
+  motion \u2014 the *ask itself* is the story. Same for first-of-kind
+  injunctions, novel damages theories, or novel remedies.
+- **Appeals court rulings on named frontier labs** count. A DC Circuit
+  ruling on Anthropic's DOD designation is not a procedural motion. Any
+  appellate ruling that names a frontier lab or big-tech defendant
+  usually clears the bar.
+- **First convictions under new laws** are capability thresholds for the
+  legal system. Include them \u2014 they establish how a new statute actually
+  gets enforced.
+- **Gurman-on-Apple rumors** clear the rumor bar. Mark Gurman's Apple
+  sourcing has a long enough track record that his Bloomberg reports on
+  Apple product timing count as includable even when labeled "Sources:".
+  Similar bar for Kuo-on-Apple-supply-chain.
+- **AR/smartglasses infrastructure deals** count. Snap\u2013Qualcomm,
+  Meta\u2013EssilorLuxottica, Apple\u2013Sony-optics, etc. The category is
+  nascent enough that chip and optics partnerships are category-defining,
+  not portfolio noise.
+
+### Balance discipline
+
+Aim for roughly even volume across included sections. A digest where one
+section holds 10+ items while four others hold 1 is usually a sign that the
+fat bucket is absorbing items that belong elsewhere. Before finalizing:
+
+- If **Infrastructure & compute** is crowded and **Deals & funding** is
+  empty, you probably routed compute-capacity deals correctly \u2014 leave it.
+- If **User behavior & adoption** is crowded, check whether some items are
+  really **Revenue & scale milestones** (financial) and reroute.
+- If **Industry narratives** is crowded, check whether some items are really
+  **Deals & funding** (talent-for-hire, org buys) or **Platform & policy**
+  (exec making a policy statement) and reroute.
+- If a section has a single item, consider whether it's really significant
+  enough to stand alone or should be dropped.
+- Single-item sections are acceptable when the item is genuinely important
+  and doesn't fit any other bucket (e.g., one crucial research paper). Don't
+  force-merge unrelated items to avoid singletons.
+
 ### Edge-case rules
 
+- **Deals & funding vs Infrastructure:** Compute-capacity deals (GW of TPU,
+  multi-GW CoreWeave commits, fab partnerships) belong in Infrastructure &
+  compute, even when the dollar figure is huge. Deals & funding is for
+  deals where the *transaction* is the story, not the capacity.
+- **Revenue vs Behavior:** "$30B ARR" is **Revenue & scale milestones**.
+  "500M weekly users" is **User behavior & adoption**. If a headline has
+  both, pick whichever the lead emphasizes.
+- **Voices & interviews vs Research & ideas:** Karpathy tweet-essay = ideas.
+  Brockman Q&A = voices. Written artifact with durable claims \u2192 ideas;
+  spoken/conversational/profile \u2192 voices.
 - **Funding/M&A:** Include only if the headline itself implies a strategic or
   market shift (valuation tier, category-defining acquisition). When unsure,
   exclude.
