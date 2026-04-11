@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --fg: #1c1c1c;
+    --muted: #6b6b6b;
+    --rule: #e6e3da;
+    --accent: #b3261e;
+    --link: #1c1c1c;
+    --link-hover: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614;
+      --fg: #ececec;
+      --muted: #999;
+      --rule: #2a2a27;
+      --accent: #ff6b5e;
+      --link: #ececec;
+      --link-hover: #ff8a80;
+    }
+  }
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    line-height: 1.45;
+    margin: 0;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 5rem;
+  }
+  header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  h1 {
+    font-size: 1.75rem;
+    margin: 0 0 .35rem 0;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: .92rem;
+  }
+  .badge {
+    display: inline-block;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    background: var(--accent);
+    color: #fff;
+    padding: .12rem .5rem;
+    border-radius: 3px;
+    margin-left: .5rem;
+    vertical-align: middle;
+  }
+  section {
+    margin-bottom: 2.25rem;
+  }
+  section h2 {
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: .35rem;
+    margin: 0 0 .85rem 0;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    padding: .55rem 0;
+    border-bottom: 1px dotted var(--rule);
+  }
+  li:last-child { border-bottom: none; }
+  a {
+    color: var(--link);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  a:hover { color: var(--link-hover); text-decoration: underline; }
+  .src {
+    display: block;
+    color: var(--muted);
+    font-size: .78rem;
+    margin-top: .15rem;
+  }
+  footer {
+    color: var(--muted);
+    font-size: .75rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>{{ title }}{% if partial %}<span class="badge">partial</span>{% endif %}</h1>
+    {% if subtitle %}<div class="subtitle">{{ subtitle }} &middot; {{ total }} stor{{ 'y' if total == 1 else 'ies' }}</div>{% endif %}
+  </header>
+
+  {% for section in sections %}
+  <section>
+    <h2>{{ section.name }}</h2>
+    <ul>
+      {% for item in section.entries %}
+      <li>
+        <a href="{{ item.permalink }}" target="_blank" rel="noopener">{{ item.headline }}</a>
+        {% if item.source %}<span class="src">{{ item.source }} &middot; {{ item.item_date }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+
+  <footer>
+    Generated {{ generated_at }} &middot; All links resolve to Techmeme cluster pages, which aggregate every source for the story.
+  </footer>
+</main>
+</body>
+</html>

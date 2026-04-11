@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+archive.db
+archive.db-journal
+digests/
+.DS_Store
+.claude/
+launchd/fetch.log
+launchd/fetch.err.log
+
+# Personal/uncommitted launchd plist (the .template version is committed)
+launchd/*.plist
+!launchd/*.plist.template
