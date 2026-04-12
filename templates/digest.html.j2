@@ -12,6 +12,10 @@
     --accent: #b3261e;
     --link: #1c1c1c;
     --link-hover: #b3261e;
+    --chip-bg: #ececec;
+    --chip-fg: #1c1c1c;
+    --chip-active-bg: #1c1c1c;
+    --chip-active-fg: #fafaf7;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -22,6 +26,10 @@
       --accent: #ff6b5e;
       --link: #ececec;
       --link-hover: #ff8a80;
+      --chip-bg: #2a2a27;
+      --chip-fg: #ececec;
+      --chip-active-bg: #ececec;
+      --chip-active-fg: #161614;
     }
   }
   html, body {
@@ -39,7 +47,7 @@
   header {
     border-bottom: 1px solid var(--rule);
     padding-bottom: 1.25rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
   h1 {
     font-size: 1.75rem;
@@ -62,6 +70,38 @@
     margin-left: .5rem;
     vertical-align: middle;
   }
+  .day-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-bottom: 2rem;
+  }
+  .day-btn {
+    background: var(--chip-bg);
+    color: var(--chip-fg);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: .35rem .8rem;
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+    transition: background .12s, color .12s, border-color .12s, opacity .12s;
+  }
+  .day-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .day-btn.active {
+    background: var(--chip-active-bg);
+    color: var(--chip-active-fg);
+    border-color: var(--chip-active-bg);
+  }
+  .day-btn:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+  }
+  .day-btn .n {
+    font-size: .7rem;
+    opacity: .7;
+    margin-left: .3rem;
+  }
   section {
     margin-bottom: 2.25rem;
   }
@@ -74,6 +114,7 @@
     padding-bottom: .35rem;
     margin: 0 0 .85rem 0;
   }
+  section.hidden { display: none; }
   ul {
     list-style: none;
     padding: 0;
@@ -84,6 +125,7 @@
     border-bottom: 1px dotted var(--rule);
   }
   li:last-child { border-bottom: none; }
+  li.hidden { display: none; }
   a {
     color: var(--link);
     text-decoration: none;
@@ -112,12 +154,23 @@
     {% if subtitle %}<div class="subtitle">{{ subtitle }} &middot; {{ total }} stor{{ 'y' if total == 1 else 'ies' }}</div>{% endif %}
   </header>
 
+  {% if days %}
+  <div class="day-filter" role="group" aria-label="Filter by day">
+    {% for d in days %}
+    <button type="button"
+            class="day-btn active"
+            data-date="{{ d.iso }}"
+            {% if d.count == 0 %}disabled{% endif %}>{{ d.label }}<span class="n">{{ d.count }}</span></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% for section in sections %}
-  <section>
+  <section data-section>
     <h2>{{ section.name }}</h2>
     <ul>
       {% for item in section.entries %}
-      <li>
+      <li data-date="{{ item.item_date }}">
         <a href="{{ item.permalink }}" target="_blank" rel="noopener">{{ item.headline }}</a>
         {% if item.source %}<span class="src">{{ item.source }} &middot; {{ item.item_date }}</span>{% endif %}
       </li>
@@ -130,5 +183,35 @@
     Generated {{ generated_at }} &middot; All links resolve to Techmeme cluster pages, which aggregate every source for the story.
   </footer>
 </main>
+
+<script>
+(function () {
+  var buttons = Array.from(document.querySelectorAll(".day-btn:not(:disabled)"));
+  var items = Array.from(document.querySelectorAll("li[data-date]"));
+  var sections = Array.from(document.querySelectorAll("section[data-section]"));
+  var active = new Set(buttons.map(function (b) { return b.getAttribute("data-date"); }));
+
+  function refresh() {
+    items.forEach(function (li) {
+      if (active.has(li.getAttribute("data-date"))) li.classList.remove("hidden");
+      else li.classList.add("hidden");
+    });
+    sections.forEach(function (sec) {
+      var any = Array.from(sec.querySelectorAll("li[data-date]")).some(function (li) { return !li.classList.contains("hidden"); });
+      if (any) sec.classList.remove("hidden");
+      else sec.classList.add("hidden");
+    });
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var d = btn.getAttribute("data-date");
+      if (active.has(d)) { active.delete(d); btn.classList.remove("active"); }
+      else { active.add(d); btn.classList.add("active"); }
+      refresh();
+    });
+  });
+})();
+</script>
 </body>
 </html>

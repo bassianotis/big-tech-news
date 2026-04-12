@@ -15,47 +15,22 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import os
 import re
 import sqlite3
 import sys
 import time
-from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
 
-REPO = Path(__file__).resolve().parent
-DB_PATH = REPO / "archive.db"
+import db
+
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/605.1.15 (KHTML, like Gecko) "
     "Version/17.0 Safari/605.1.15"
 )
 ITEM_ID_RE = re.compile(r"^(\d{6})p(\d+)$")
-
-
-def db_connect() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS items (
-            id            TEXT PRIMARY KEY,   -- e.g. "260409p22"
-            item_date     TEXT NOT NULL,      -- YYYY-MM-DD (derived from id)
-            permalink     TEXT NOT NULL,      -- techmeme cluster permalink
-            headline      TEXT NOT NULL,
-            source        TEXT,               -- "Author / Publication"
-            is_lead       INTEGER NOT NULL,   -- 1 = lead of cluster / standalone
-            cluster_index INTEGER,            -- ordinal of containing cluster, NULL if standalone
-            first_seen    TEXT NOT NULL,      -- ISO timestamp of first capture
-            last_seen     TEXT NOT NULL       -- ISO timestamp of most recent capture
-        );
-        CREATE INDEX IF NOT EXISTS idx_items_date ON items(item_date);
-        CREATE INDEX IF NOT EXISTS idx_items_lead ON items(is_lead);
-        """
-    )
-    return conn
 
 
 def yyMMdd(d: dt.date) -> str:
@@ -184,7 +159,7 @@ def main() -> int:
     p.add_argument("--sleep", type=float, default=1.0, help="seconds between requests when --days > 1")
     args = p.parse_args()
 
-    conn = db_connect()
+    conn = db.connect()
     today = dt.date.today()
 
     if args.date:

@@ -28,16 +28,16 @@
     <key>WorkingDirectory</key>
     <string>{{REPO}}</string>
 
-    <!-- Run every day at 06:00 local time -->
+    <!-- Run every day at 19:00 local time (end of the US news day) -->
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>6</integer>
+        <integer>19</integer>
         <key>Minute</key>
         <integer>0</integer>
     </dict>
 
-    <!-- If the Mac was asleep at 06:00, run as soon as it wakes -->
+    <!-- If the Mac was asleep at 19:00, run as soon as it wakes -->
     <key>RunAtLoad</key>
     <false/>
 

@@ -11,40 +11,67 @@ headlines and verified Techmeme cluster permalinks. No AI-written prose.
 
 ## How to generate a digest
 
-When the user asks for "this week's digest", "the last week", "catch me up since X",
-or similar:
+When the user asks for "this week's digest", "the last week", "catch me up
+since X", or similar, follow this **stable, incremental** flow. Re-running
+over an overlapping window reuses prior judgments from the `curation` table
+instead of re-deciding — that's the whole point of option 2.
 
-1. **Compute the window** (see "Week semantics" below).
-2. **Query `archive.db`** for items in the window. Default to lead items only:
-   ```sql
-   SELECT id, item_date, headline, source
-     FROM items
-    WHERE is_lead = 1
-      AND item_date BETWEEN ? AND ?
-    ORDER BY item_date, id;
+1. **Compute the window** (see "Week semantics" below). Call it `START..END`.
+
+2. **List items that have no prior verdict** in the window. These are the
+   only items you need to think about this run:
+   ```bash
+   .venv/bin/python curate.py list-unjudged --start START --end END > /tmp/unjudged.json
    ```
-3. **Apply the filter taxonomy** (below) to choose which items to include and
-   bucket each into a section.
-4. **Build a JSON spec** in this exact shape:
+   Items already judged in a prior run are NOT in this list. Do not re-judge
+   them — their verdicts stand.
+
+3. **Apply the filter taxonomy** (below) to the unjudged items. For each,
+   decide `include` (with a section name) or `skip`. Build a verdicts JSON:
    ```json
    {
-     "title": "Week of Apr 5 \u2013 Apr 11, 2026",
-     "subtitle": "Sun 2026-04-05 \u2192 Sat 2026-04-11",
-     "partial": false,
-     "sections": [
-       {"name": "AI model & product releases", "item_ids": ["260408p42", "260409p3"]},
-       {"name": "Platform & policy", "item_ids": ["260404p2"]}
-     ]
+     "260411p5":  {"verdict": "include", "section": "AI model & product releases"},
+     "260411p7":  {"verdict": "skip"},
+     "260410p42": {"verdict": "include", "section": "Platform & policy"}
    }
    ```
-5. **Render** by piping the spec to `render.py`:
+   Use section names from the canonical list in the taxonomy — the renderer
+   orders sections by that list.
+
+4. **Write the verdicts:**
    ```bash
-   .venv/bin/python render.py --out digests/2026-04-05_week.html < /tmp/spec.json
+   .venv/bin/python curate.py write --verdicts /tmp/verdicts.json
    ```
-   (Or use `--spec /tmp/spec.json`.) The renderer looks every id up in the DB
-   and emits the verbatim headline + verified permalink. Never put headlines or
-   permalinks in the spec yourself.
+
+5. **Render** from the window. The renderer reads `curation` and assembles
+   sections from every `include` verdict in range. You never pass headlines
+   or permalinks — those load verbatim from the DB.
+   ```bash
+   .venv/bin/python render.py \
+     --window START..END \
+     --title "Week of Apr 5 \u2013 Apr 11, 2026" \
+     --subtitle "Sun 2026-04-05 \u2192 Sat 2026-04-11" \
+     [--partial] \
+     --out digests/2026-04-05_week.html
+   ```
+
 6. **Tell the user the path** so they can open it in their browser.
+
+### Stability rules
+
+- **Never re-judge an item with a prior verdict.** Prior decisions are
+  authoritative. If the user wants to re-curate, they'll say so — run
+  `curate.py clear --start START --end END` first, then start from step 2.
+- **Sections are mutable only for new items.** An item filed in "Platform
+  & policy" last run stays there, even if you'd re-bucket it now.
+
+### Day filter in the rendered HTML
+
+Each rendered digest has one button per day in the window across the top.
+Clicking toggles that day off/on. All days start active. Days with zero
+items are shown but disabled. State resets each time the page reloads —
+intentionally simple. Do not add any persistence or extra controls to the
+template without the user asking.
 
 ## Week semantics
 
@@ -269,6 +296,13 @@ fat bucket is absorbing items that belong elsewhere. Before finalizing:
   fetch Techmeme yourself during curation; the archive is the source of truth.
 - The `source` column on items can help you spot reputable outlets when
   judging borderline rumor stories.
+- **Day counts reflect Techmeme's own volume, not a curation quota.**
+  Saturdays and Sundays run roughly a third to half of weekday volume
+  (Sat ~10 leads/day, Sun ~13, weekdays ~23\u201337 based on local archive).
+  Do not try to flatten the day filter by including weaker weekend items
+  or dropping strong weekday ones. A quiet Sunday is just a quiet Sunday.
+  Also: if the current day shows zero items, the 19:00 ET fetch may not
+  have run yet — check before concluding anything about curation.
 
 ## Manual capture
 
