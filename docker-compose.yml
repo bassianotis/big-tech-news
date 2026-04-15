@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: bigtechnews-app
+    restart: unless-stopped
+    volumes:
+      - ./data/archive.db:/app/archive.db
+      - ./data/digests:/app/digests
+      - ./data/launchd:/app/launchd        # fetch logs persist across rebuilds
+      - ./config/claude:/root/.claude      # Claude Code auth persists across rebuilds
+
+  web:
+    image: nginx:alpine
+    container_name: bigtechnews-web
+    restart: unless-stopped
+    ports:
+      - "4003:80"
+    volumes:
+      - ./data/digests:/usr/share/nginx/html:ro
+      - ./docker/web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app

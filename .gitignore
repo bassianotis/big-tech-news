@@ -3,7 +3,9 @@ __pycache__/
 *.pyc
 archive.db
 archive.db-journal
-digests/
+archive.db-shm
+archive.db-wal
+/digests/
 .DS_Store
 .claude/
 launchd/fetch.log
@@ -12,3 +14,15 @@ launchd/fetch.err.log
 # Personal/uncommitted launchd plist (the .template version is committed)
 launchd/*.plist
 !launchd/*.plist.template
+
+# Docker runtime data — commit directory structure, ignore contents
+data/archive.db
+data/archive.db-shm
+data/archive.db-wal
+data/digests/*
+data/launchd/*
+!data/**/.gitkeep
+
+# Claude Code auth — directory structure only, never the credentials
+config/claude/*
+!config/claude/.gitkeep

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+data/
+config/
+digests/
+archive.db
+archive.db-shm
+archive.db-wal
+.git/
+.DS_Store
+docs/
+launchd/fetch.log
+launchd/fetch.err.log
+launchd/*.plist

@@ -1,0 +1,5 @@
+# Daily Techmeme fetch at 06:00 local time.
+# fetch.py --days 2 is idempotent; re-running is always safe.
+# Full path to python — cron does not inherit the container's PATH.
+0 6 * * * root /usr/local/bin/python /app/fetch.py --days 2 >> /app/launchd/fetch.log 2>> /app/launchd/fetch.err.log
+

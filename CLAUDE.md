@@ -235,6 +235,16 @@ these patterns:
   Meta\u2013EssilorLuxottica, Apple\u2013Sony-optics, etc. The category is
   nascent enough that chip and optics partnerships are category-defining,
   not portfolio noise.
+- **Frontier lab acquisitions of non-AI startups** count. When OpenAI,
+  Anthropic, Google DeepMind, or Meta acquire a startup outside their
+  core domain (e.g., OpenAI buying a personal finance app), the
+  expansion intent is the story regardless of deal size. Include in
+  Deals & funding.
+- **Novel compute paradigms** count even at stealth/seed stage. Living
+  neurons for AI chips, photonic computing, thermodynamic computing,
+  etc. \u2014 if the approach is genuinely new (not just another chip
+  startup), it clears the bar for Research & ideas. The paradigm is the
+  story, not the funding stage.
 
 ### Balance discipline
 
@@ -301,7 +311,7 @@ fat bucket is absorbing items that belong elsewhere. Before finalizing:
   (Sat ~10 leads/day, Sun ~13, weekdays ~23\u201337 based on local archive).
   Do not try to flatten the day filter by including weaker weekend items
   or dropping strong weekday ones. A quiet Sunday is just a quiet Sunday.
-  Also: if the current day shows zero items, the 19:00 ET fetch may not
+  Also: if the current day shows zero items, the 06:00 fetch may not
   have run yet — check before concluding anything about curation.
 
 ## Manual capture
