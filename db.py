@@ -7,6 +7,7 @@ run on an existing database.
 """
 from __future__ import annotations
 
+import datetime as dt
 import sqlite3
 from pathlib import Path
 
@@ -37,6 +38,26 @@ CREATE TABLE IF NOT EXISTS curation (
 );
 CREATE INDEX IF NOT EXISTS idx_curation_verdict ON curation(verdict);
 """
+
+
+def week_bounds(which: str, today: dt.date | None = None) -> tuple[dt.date, dt.date]:
+    """Return (start, end) for 'this-week' or 'last-week'.
+
+    Weeks run Sunday → Saturday.  'this-week' starts on the most recent
+    Sunday and ends today.  'last-week' is the previous completed Sun → Sat.
+    """
+    if today is None:
+        today = dt.date.today()
+    # weekday(): Monday=0 … Sunday=6.  We want the most recent Sunday.
+    days_since_sunday = (today.weekday() + 1) % 7
+    this_sunday = today - dt.timedelta(days=days_since_sunday)
+    if which == "this-week":
+        return this_sunday, today
+    if which == "last-week":
+        last_saturday = this_sunday - dt.timedelta(days=1)
+        last_sunday = last_saturday - dt.timedelta(days=6)
+        return last_sunday, last_saturday
+    raise ValueError(f"unknown week alias: {which!r}")
 
 
 def connect() -> sqlite3.Connection:

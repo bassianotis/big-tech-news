@@ -30,9 +30,27 @@ from pathlib import Path
 import db
 
 
+def _resolve_window(args) -> tuple[str, str] | None:
+    """Resolve --this-week / --last-week into (start, end) date strings."""
+    if getattr(args, "this_week", False):
+        s, e = db.week_bounds("this-week")
+        return s.isoformat(), e.isoformat()
+    if getattr(args, "last_week", False):
+        s, e = db.week_bounds("last-week")
+        return s.isoformat(), e.isoformat()
+    if args.start and not args.end:
+        print("ERROR: --start requires --end", file=sys.stderr)
+        return None
+    return args.start, args.end
+
+
 def cmd_list_unjudged(args) -> int:
+    result = _resolve_window(args)
+    if result is None:
+        return 2
+    start, end = result
     conn = db.connect()
-    rows = db.items_in_window(conn, args.start, args.end)
+    rows = db.items_in_window(conn, start, end)
     unjudged = [r for r in rows if r["verdict"] is None]
     out = [
         {"id": r["id"], "item_date": r["item_date"], "headline": r["headline"], "source": r["source"]}
@@ -40,7 +58,7 @@ def cmd_list_unjudged(args) -> int:
     ]
     json.dump(out, sys.stdout, indent=2, ensure_ascii=False)
     sys.stdout.write("\n")
-    print(f"# {len(unjudged)} unjudged of {len(rows)} items in window {args.start}..{args.end}", file=sys.stderr)
+    print(f"# {len(unjudged)} unjudged of {len(rows)} items in window {start}..{end}", file=sys.stderr)
     return 0
 
 
@@ -78,14 +96,18 @@ def cmd_write(args) -> int:
 
 
 def cmd_clear(args) -> int:
+    result = _resolve_window(args)
+    if result is None:
+        return 2
+    start, end = result
     conn = db.connect()
     n = conn.execute(
         """DELETE FROM curation WHERE item_id IN (
               SELECT id FROM items WHERE item_date BETWEEN ? AND ?)""",
-        (args.start, args.end),
+        (start, end),
     ).rowcount
     conn.commit()
-    print(f"cleared {n} verdicts in window {args.start}..{args.end}")
+    print(f"cleared {n} verdicts in window {start}..{end}")
     return 0
 
 
@@ -94,8 +116,11 @@ def main() -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     lu = sub.add_parser("list-unjudged", help="print items in window with no prior verdict")
-    lu.add_argument("--start", required=True, help="YYYY-MM-DD")
-    lu.add_argument("--end", required=True, help="YYYY-MM-DD")
+    lu_win = lu.add_mutually_exclusive_group(required=True)
+    lu_win.add_argument("--this-week", action="store_true", help="Sunday through today")
+    lu_win.add_argument("--last-week", action="store_true", help="previous completed Sun–Sat")
+    lu_win.add_argument("--start", help="YYYY-MM-DD (requires --end)")
+    lu.add_argument("--end", help="YYYY-MM-DD (required with --start)")
     lu.set_defaults(fn=cmd_list_unjudged)
 
     wr = sub.add_parser("write", help="write verdicts from JSON (stdin or --verdicts)")
@@ -103,8 +128,11 @@ def main() -> int:
     wr.set_defaults(fn=cmd_write)
 
     cl = sub.add_parser("clear", help="delete verdicts for items in a window")
-    cl.add_argument("--start", required=True)
-    cl.add_argument("--end", required=True)
+    cl_win = cl.add_mutually_exclusive_group(required=True)
+    cl_win.add_argument("--this-week", action="store_true", help="Sunday through today")
+    cl_win.add_argument("--last-week", action="store_true", help="previous completed Sun–Sat")
+    cl_win.add_argument("--start", help="YYYY-MM-DD (requires --end)")
+    cl.add_argument("--end", help="YYYY-MM-DD (required with --start)")
     cl.set_defaults(fn=cmd_clear)
 
     args = p.parse_args()

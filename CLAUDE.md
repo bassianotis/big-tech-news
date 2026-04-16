@@ -16,12 +16,21 @@ since X", or similar, follow this **stable, incremental** flow. Re-running
 over an overlapping window reuses prior judgments from the `curation` table
 instead of re-deciding — that's the whole point of option 2.
 
-1. **Compute the window** (see "Week semantics" below). Call it `START..END`.
+1. **Pick the window flag.** Do NOT compute dates yourself — use the
+   built-in convenience flags so Python computes week boundaries:
 
-2. **List items that have no prior verdict** in the window. These are the
-   only items you need to think about this run:
+   | User says            | Flag              |
+   |----------------------|-------------------|
+   | "this week"          | `--this-week`     |
+   | "last week"          | `--last-week`     |
+   | specific date range  | `--start X --end Y` (or `--window X..Y` for render) |
+
+   **Never manually compute Sunday/Saturday boundaries.** The `--this-week`
+   and `--last-week` flags handle week semantics correctly on every platform.
+
+2. **List items that have no prior verdict** in the window:
    ```bash
-   .venv/bin/python curate.py list-unjudged --start START --end END > /tmp/unjudged.json
+   .venv/bin/python curate.py list-unjudged --this-week > /tmp/unjudged.json
    ```
    Items already judged in a prior run are NOT in this list. Do not re-judge
    them — their verdicts stand.
@@ -43,14 +52,13 @@ instead of re-deciding — that's the whole point of option 2.
    .venv/bin/python curate.py write --verdicts /tmp/verdicts.json
    ```
 
-5. **Render** from the window. The renderer auto-computes the title,
-   subtitle, partial flag, and output filename from the window — just pass
-   `--window` and nothing else:
+5. **Render** the digest. Use the same window flag — the renderer
+   auto-computes the title, subtitle, partial flag, and output filename:
    ```bash
-   .venv/bin/python render.py --window START..END
+   .venv/bin/python render.py --this-week
    ```
-   This produces e.g. `digests/2026-04-05_week_partial.html` with title
-   "Week of Apr 5 – Apr 11, 2026". You can override any auto-computed
+   This produces e.g. `digests/2026-04-12_week_partial.html` with title
+   "Week of Apr 12 – Apr 18, 2026". You can override any auto-computed
    value with `--title`, `--subtitle`, `--partial`, or `--out` if needed.
 
 6. **Tell the user the path** so they can open it in their browser.
@@ -59,7 +67,8 @@ instead of re-deciding — that's the whole point of option 2.
 
 - **Never re-judge an item with a prior verdict.** Prior decisions are
   authoritative. If the user wants to re-curate, they'll say so — run
-  `curate.py clear --start START --end END` first, then start from step 2.
+  `curate.py clear --this-week` (or `--start START --end END`) first,
+  then start from step 2.
 - **Sections are mutable only for new items.** An item filed in "Platform
   & policy" last run stays there, even if you'd re-bucket it now.
 

@@ -184,6 +184,8 @@ def main() -> int:
                    help="override partial detection (auto-detected from window if omitted)")
 
     mode = p.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--this-week", action="store_true", help="Sunday through today (partial)")
+    mode.add_argument("--last-week", action="store_true", help="previous completed Sun–Sat")
     mode.add_argument("--window", help="START..END (YYYY-MM-DD..YYYY-MM-DD)")
     mode.add_argument("--spec", help="path to spec JSON (legacy manual mode)")
     mode.add_argument("--spec-stdin", action="store_true", help="read spec JSON from stdin")
@@ -191,7 +193,11 @@ def main() -> int:
     args = p.parse_args()
     conn = db.connect()
 
-    if args.window:
+    if args.this_week or args.last_week:
+        which = "this-week" if args.this_week else "last-week"
+        start, end = db.week_bounds(which)
+        start_s, end_s = start.isoformat(), end.isoformat()
+    elif args.window:
         try:
             start_s, end_s = args.window.split("..")
             start = dt.date.fromisoformat(start_s)
@@ -200,6 +206,7 @@ def main() -> int:
             print("ERROR: --window must be START..END (YYYY-MM-DD..YYYY-MM-DD)", file=sys.stderr)
             return 2
 
+    if args.this_week or args.last_week or args.window:
         sections = build_sections_from_window(conn, start_s, end_s)
         partial = args.partial if args.partial is not None else _is_partial(start, end)
         title = args.title or _week_title(start, end)
