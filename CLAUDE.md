@@ -43,17 +43,15 @@ instead of re-deciding — that's the whole point of option 2.
    .venv/bin/python curate.py write --verdicts /tmp/verdicts.json
    ```
 
-5. **Render** from the window. The renderer reads `curation` and assembles
-   sections from every `include` verdict in range. You never pass headlines
-   or permalinks — those load verbatim from the DB.
+5. **Render** from the window. The renderer auto-computes the title,
+   subtitle, partial flag, and output filename from the window — just pass
+   `--window` and nothing else:
    ```bash
-   .venv/bin/python render.py \
-     --window START..END \
-     --title "Week of Apr 5 \u2013 Apr 11, 2026" \
-     --subtitle "Sun 2026-04-05 \u2192 Sat 2026-04-11" \
-     [--partial] \
-     --out digests/2026-04-05_week.html
+   .venv/bin/python render.py --window START..END
    ```
+   This produces e.g. `digests/2026-04-05_week_partial.html` with title
+   "Week of Apr 5 – Apr 11, 2026". You can override any auto-computed
+   value with `--title`, `--subtitle`, `--partial`, or `--out` if needed.
 
 6. **Tell the user the path** so they can open it in their browser.
 

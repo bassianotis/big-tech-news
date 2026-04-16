@@ -138,12 +138,50 @@ def render(sections: list[dict], days: list[dict], *, title: str, subtitle: str,
     print(f"wrote {out_path}  ({sum(len(s['entries']) for s in sections)} items, {len(sections)} sections, {len(days)} days)")
 
 
+def _week_saturday(start: dt.date) -> dt.date:
+    """Return the Saturday ending the Sun→Sat week containing `start`."""
+    if start.weekday() == 6:  # Sunday
+        return start + dt.timedelta(days=6)
+    return start + dt.timedelta(days=(5 - start.weekday()) % 7)
+
+
+def _week_title(start: dt.date, end: dt.date) -> str:
+    """Always shows the full Sun–Sat week: 'Week of Apr 12 – Apr 18, 2026'."""
+    sat = _week_saturday(start)
+    if start.year == sat.year:
+        return f"Week of {start.strftime('%b %-d')} \u2013 {sat.strftime('%b %-d, %Y')}"
+    return f"Week of {start.strftime('%b %-d, %Y')} \u2013 {sat.strftime('%b %-d, %Y')}"
+
+
+def _week_subtitle(start: dt.date, end: dt.date, partial: bool) -> str:
+    """Shows the actual data range: 'Sun 2026-04-12 → Tue 2026-04-15 (partial)'."""
+    s = f"{start.strftime('%a')} {start.isoformat()} \u2192 {end.strftime('%a')} {end.isoformat()}"
+    if partial:
+        s += " (partial)"
+    return s
+
+
+def _is_partial(start: dt.date, end: dt.date) -> bool:
+    """A week is partial if end doesn't reach the Saturday of start's week."""
+    return end < _week_saturday(start)
+
+
+def _auto_out_path(start: dt.date, end: dt.date, partial: bool) -> Path:
+    """Compute output path following CLAUDE.md filename conventions."""
+    delta = (end - start).days
+    if delta <= 6:
+        suffix = "_week_partial.html" if partial else "_week.html"
+        return Path(f"digests/{start.isoformat()}{suffix}")
+    return Path(f"digests/{start.isoformat()}_to_{end.isoformat()}.html")
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--out", required=True, help="output HTML path")
-    p.add_argument("--title", help="digest title")
-    p.add_argument("--subtitle", help="digest subtitle")
-    p.add_argument("--partial", action="store_true", help="mark digest as partial")
+    p.add_argument("--out", help="output HTML path (auto-computed from window if omitted)")
+    p.add_argument("--title", help="override auto-computed title")
+    p.add_argument("--subtitle", help="override auto-computed subtitle")
+    p.add_argument("--partial", action="store_true", default=None,
+                   help="override partial detection (auto-detected from window if omitted)")
 
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument("--window", help="START..END (YYYY-MM-DD..YYYY-MM-DD)")
@@ -155,27 +193,33 @@ def main() -> int:
 
     if args.window:
         try:
-            start, end = args.window.split("..")
-            dt.date.fromisoformat(start)
-            dt.date.fromisoformat(end)
+            start_s, end_s = args.window.split("..")
+            start = dt.date.fromisoformat(start_s)
+            end = dt.date.fromisoformat(end_s)
         except ValueError:
             print("ERROR: --window must be START..END (YYYY-MM-DD..YYYY-MM-DD)", file=sys.stderr)
             return 2
-        sections = build_sections_from_window(conn, start, end)
-        title = args.title or f"Digest {start} \u2192 {end}"
-        subtitle = args.subtitle or f"{start} \u2192 {end}"
+
+        sections = build_sections_from_window(conn, start_s, end_s)
+        partial = args.partial if args.partial is not None else _is_partial(start, end)
+        title = args.title or _week_title(start, end)
+        subtitle = args.subtitle or _week_subtitle(start, end, partial)
+        out_path = Path(args.out) if args.out else _auto_out_path(start, end, partial)
     else:
+        if not args.out:
+            print("ERROR: --out is required with --spec/--spec-stdin", file=sys.stderr)
+            return 2
         spec = json.loads(Path(args.spec).read_text()) if args.spec else json.loads(sys.stdin.read())
         sections = build_sections_from_spec(conn, spec)
         title = args.title or spec.get("title", "Big Tech News Digest")
         subtitle = args.subtitle or spec.get("subtitle", "")
-        if spec.get("partial"):
-            args.partial = True
+        partial = args.partial or spec.get("partial", False)
         dates = sorted({it["item_date"] for s in sections for it in s["entries"]})
-        start, end = (dates[0], dates[-1]) if dates else (dt.date.today().isoformat(),) * 2
+        start_s, end_s = (dates[0], dates[-1]) if dates else (dt.date.today().isoformat(),) * 2
+        out_path = Path(args.out)
 
-    days = build_days(start, end, sections)
-    render(sections, days, title=title, subtitle=subtitle, partial=args.partial, out_path=Path(args.out))
+    days = build_days(start_s, end_s, sections)
+    render(sections, days, title=title, subtitle=subtitle, partial=partial, out_path=out_path)
     return 0
 
 
