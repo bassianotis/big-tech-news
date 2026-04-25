@@ -6,8 +6,16 @@ RUN apt-get update && apt-get install -y curl cron \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code
-RUN npm install -g @anthropic-ai/claude-code
+# Install Claude Code. The wrapper package's real binary lives in an
+# optional, platform-specific subpackage; install it explicitly so a flaky
+# network during build can't silently strip it. TARGETARCH is set by
+# buildx (arm64 on the Pi, amd64 elsewhere). Verify the binary works
+# before continuing — fail the build loudly if it doesn't.
+ARG TARGETARCH
+RUN npm install -g \
+      @anthropic-ai/claude-code \
+      @anthropic-ai/claude-code-linux-${TARGETARCH} \
+    && claude --version
 
 WORKDIR /app
 
