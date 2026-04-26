@@ -166,11 +166,68 @@ def _is_partial(start: dt.date, end: dt.date) -> bool:
     return end < _week_saturday(start)
 
 
+def write_index() -> None:
+    """Regenerate digests/index.html from the current set of digest files."""
+    digests_dir = REPO / "digests"
+    files = sorted(digests_dir.glob("*_week.html"), reverse=True)
+
+    items = []
+    for f in files:
+        stem = f.stem  # e.g. "2026-04-19_week"
+        date_part = stem.replace("_week", "")
+        try:
+            start = dt.date.fromisoformat(date_part)
+        except ValueError:
+            continue
+        items.append({"href": f.name, "title": _week_title(start, _week_saturday(start))})
+
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Big Tech News</title>
+<style>
+  :root {
+    --bg: #fafaf7; --fg: #1c1c1c; --muted: #6b6b6b;
+    --rule: #e6e3da; --link: #1c1c1c; --link-hover: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --fg: #ececec; --muted: #999;
+      --rule: #2a2a27; --link: #ececec; --link-hover: #ff8a80;
+    }
+  }
+  html, body { background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    line-height: 1.45; margin: 0; }
+  main { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  header { border-bottom: 1px solid var(--rule); padding-bottom: 1.25rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.75rem; margin: 0; letter-spacing: -0.01em; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { padding: .55rem 0; border-bottom: 1px dotted var(--rule); }
+  li:last-child { border-bottom: none; }
+  a { color: var(--link); text-decoration: none; font-weight: 500; }
+  a:hover { color: var(--link-hover); text-decoration: underline; }
+</style>
+</head>
+<body>
+<main>
+<header><h1>Big Tech News</h1></header>
+<ul>
+"""
+    for item in items:
+        html += f'  <li><a href="{item["href"]}">{item["title"]}</a></li>\n'
+    html += "</ul>\n</main>\n</body>\n</html>\n"
+
+    out = digests_dir / "index.html"
+    out.write_text(html, encoding="utf-8")
+
+
 def _auto_out_path(start: dt.date, end: dt.date, partial: bool) -> Path:
     """Compute output path following CLAUDE.md filename conventions."""
     delta = (end - start).days
     if delta <= 6:
-        suffix = "_week_partial.html" if partial else "_week.html"
+        suffix = "_week.html"
         return Path(f"digests/{start.isoformat()}{suffix}")
     return Path(f"digests/{start.isoformat()}_to_{end.isoformat()}.html")
 
@@ -227,6 +284,7 @@ def main() -> int:
 
     days = build_days(start_s, end_s, sections)
     render(sections, days, title=title, subtitle=subtitle, partial=partial, out_path=out_path)
+    write_index()
     return 0
 
 
