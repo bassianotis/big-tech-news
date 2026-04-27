@@ -26,3 +26,4 @@ data/launchd/*
 # Claude Code auth — directory structure only, never the credentials
 config/claude/*
 !config/claude/.gitkeep
+config/claude.json

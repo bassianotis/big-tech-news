@@ -9,7 +9,8 @@ services:
       - ./data/archive.db:/app/archive.db
       - ./data/digests:/app/digests
       - ./data/launchd:/app/launchd        # fetch logs persist across rebuilds
-      - ./config/claude:/root/.claude      # Claude Code auth persists across rebuilds
+      - ./config/claude:/root/.claude      # Claude Code auth/settings persists across rebuilds
+      - ./config/claude.json:/root/.claude.json  # Claude Code main config (lives outside .claude/)
 
   web:
     image: nginx:alpine
