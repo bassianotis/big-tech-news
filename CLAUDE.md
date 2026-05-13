@@ -57,7 +57,7 @@ instead of re-deciding — that's the whole point of option 2.
    ```bash
    .venv/bin/python render.py --this-week
    ```
-   This produces e.g. `digests/2026-04-12_week_partial.html` with title
+   This produces e.g. `digests/2026-04-12_week.html` with title
    "Week of Apr 12 – Apr 18, 2026". You can override any auto-computed
    value with `--title`, `--subtitle`, `--partial`, or `--out` if needed.
 
@@ -85,14 +85,15 @@ template without the user asking.
 - A **week** is **Sunday \u2192 Saturday**, inclusive on both ends.
 - **"This week"** = the most recent Sunday (inclusive) through today (inclusive).
   If today is Wed 2026-04-08, "this week" = Sun 2026-04-05 \u2192 Wed 2026-04-08
-  (4 days) and the digest is **partial** (`"partial": true`, filename suffix
-  `_partial`).
+  (4 days) and the digest is **partial** (`"partial": true` in the rendered
+  HTML for display purposes, but the filename is unchanged).
 - **"Last week"** = the previous fully-completed Sun \u2192 Sat block.
 - **"Last N weeks"** = N completed weeks before this week. By default skip the
   current partial week unless the user says otherwise.
 - **Filename convention:** `digests/YYYY-MM-DD_week.html` where `YYYY-MM-DD` is
-  the **Sunday** anchoring the week. Partial current weeks get
-  `digests/YYYY-MM-DD_week_partial.html`. Multi-week digests:
+  the **Sunday** anchoring the week. The **same filename is used whether the
+  week is partial or complete** — re-rendering the current week's digest each
+  day overwrites the same file in place. Multi-week digests:
   `digests/YYYY-MM-DD_to_YYYY-MM-DD.html`.
 - **Title format:** `Week of Mon DD \u2013 Mon DD, YYYY` (e.g. `Week of Apr 5 \u2013 Apr 11, 2026`).
 - Always present a single window per digest unless the user explicitly asks
